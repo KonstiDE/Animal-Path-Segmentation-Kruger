@@ -10,10 +10,11 @@ import torch
 import config.config as cfg
 
 from provider.dataset_provider import get_dataset
-from model.unet.unet_model import AsppUNET
+from model.unet.unet_model import UNET
 
 warnings.filterwarnings("ignore")
 
+# All best models for each path width-variant
 MODEL_PATH_STATIC = "E:/paper/ray_results/all_batched4_lbf_thickness9/run_df373_00000_0_apseg_version=static_buffer,batch_size=4,lr=0.0001_2024-06-25_22-31-16/checkpoint_000026/model_epoch27.pt"
 MODEL_PATH_HYBRID = "E:/paper/ray_results/all_batched4_lbf_thickness9/run_df373_00002_2_apseg_version=hybrid_buffer,batch_size=4,lr=0.0001_2024-06-25_22-31-16/checkpoint_000013/model_epoch14.pt"
 MODEL_PATH_DYNAMIC = "E:/paper/ray_results/all_batched4_lbf_thickness9/run_df373_00001_1_apseg_version=dynamic_buffer,batch_size=4,lr=0.0001_2024-06-25_22-31-16/checkpoint_000037/model_epoch38.pt"
@@ -23,6 +24,7 @@ DEVICE = "cuda:0"
 px = 1 / plt.rcParams['figure.dpi']
 
 
+# We create the matrix figure with this script
 def perform_tests(loaders, models, sample_ids=None):
     if sample_ids is None:
         sample_ids = ["part1_11_21_stolsnek", "part1_28_35_stolsnek", "part1_28_37_stolsnek"]
@@ -89,14 +91,16 @@ def perform_tests(loaders, models, sample_ids=None):
         plt.savefig("matrix_height{}.png".format(height), dpi=400)
 
 
+# Complete matrix figure. We load our state_dicts for each path width-variant and select sample_ids of tiles
+# we want to display.
 def setup():
     loader_static = get_dataset(cfg.get_test_path(version="static_buffer"))
     loader_hybrid = get_dataset(cfg.get_test_path(version="hybrid_buffer"))
     loader_dynamic = get_dataset(cfg.get_test_path(version="dynamic_buffer"))
 
-    unet_static = AsppUNET(in_channels=4)
-    unet_hybrid = AsppUNET(in_channels=4)
-    unet_dynamic = AsppUNET(in_channels=4)
+    unet_static = UNET(in_channels=4)
+    unet_hybrid = UNET(in_channels=4)
+    unet_dynamic = UNET(in_channels=4)
 
     unet_static.load_state_dict(torch.load(MODEL_PATH_STATIC)['net_state_dict'])
     unet_hybrid.load_state_dict(torch.load(MODEL_PATH_HYBRID)['net_state_dict'])
@@ -118,20 +122,6 @@ def setup():
             "part1_12_31_stolsnek",
             "part1_9_12_stolsnek"
         ]
-        # [
-        #     #urban:
-        #     "ndom50_32350_5684_1_nw_2019_9~SENTINEL2X_20190215-000000-000_L3A_T32ULB_C_V1-2.npz",
-        #     "ndom50_32345_5699_1_nw_2018_10~SENTINEL2X_20180515-000000-000_L3A_T32ULB_C_V1-2.npz",
-        #     #suburban:
-        #     "ndom50_32340_5690_1_nw_2018_1~SENTINEL2X_20180515-000000-000_L3A_T32ULB_C_V1-2.npz",
-        #     "ndom50_32336_5697_1_nw_2018_12~SENTINEL2X_20180515-000000-000_L3A_T32ULB_C_V1-2.npz",
-        #     #idustrial:
-        #     "ndom50_32312_5747_1_nw_2018_6~SENTINEL2X_20180515-000000-000_L3A_T32ULC_C_V1-2.npz",
-        #     #rural/countryside:
-        #     "ndom50_32352_5753_1_nw_2018_14~SENTINEL2X_20180315-000000-000_L3A_T32ULC_C_V1-2.npz",
-        #     #vegetation:
-        #     "ndom50_32351_5650_1_nw_2019_8~SENTINEL2X_20190615-000000-000_L3A_T32ULB_C_V1-2.npz",
-        # ]
     )
 
 

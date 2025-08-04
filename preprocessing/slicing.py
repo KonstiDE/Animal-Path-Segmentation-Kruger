@@ -6,6 +6,7 @@ import config.config as cfg
 from objects.dataframe import DataFrame
 
 
+# This method slices a big numpy array into tiles with the size of t (usually cfg.blob_size())
 def slice_n_dice(data, mask, t, part):
     if len(mask.shape) < 3:
         mask = np.expand_dims(mask, 0)
@@ -15,6 +16,8 @@ def slice_n_dice(data, mask, t, part):
     channels, rows, cols = data.shape
     frames = []
 
+    # Double loop through the 2D array dimension and put it into a dataframe. If no data for a dim of t times t is
+    # available, we append zeros.
     for r in range(0, rows, t):
         for c in range(0, cols, t):
             tile_data = data[:, r:r + t, c:c + t]
@@ -70,6 +73,7 @@ def raw_slicing(data, t):
     return frames
 
 
+# Checks for empty frames (only zeros present and removes them)
 def check_integrity(data_frames):
     valid_frames = []
 

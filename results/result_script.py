@@ -11,7 +11,7 @@ import config.config as cfg
 
 from tqdm import tqdm
 from provider.dataset_provider import get_loader
-from model.unet.unet_model import AsppUNET
+from model.unet.unet_model import UNET
 
 from metrics.linebuff_accuracy import linebuff_accuracy
 
@@ -20,7 +20,7 @@ from torchmetrics.image import StructuralSimilarityIndexMeasure
 
 device = "cuda:0"
 
-
+# With this, we test single tiles within the test set. Iterate over all samples and calculate metrics
 def test(checkpoint_path, pt_file, test_data_path):
     torch.cuda.empty_cache()
 
@@ -29,13 +29,15 @@ def test(checkpoint_path, pt_file, test_data_path):
     if os.path.isdir(checkpoint_path) and not os.path.isdir(result_path):
         os.mkdir(result_path)
 
-    unet = AsppUNET(in_channels=4, out_channels=1, aspp=False)
+    # Load UNET
+    unet = UNET(in_channels=4, out_channels=1)
     unet.load_state_dict(torch.load(checkpoint_path + pt_file)['net_state_dict'])
     unet.to(device)
 
     unet.eval()
     torch.no_grad()
 
+    # Setup mtrics
     mae_torch = MeanAbsoluteError().to(device)
     mse_torch = MeanSquaredError().to(device)
     ssim_torch = StructuralSimilarityIndexMeasure().to(device)
@@ -49,6 +51,7 @@ def test(checkpoint_path, pt_file, test_data_path):
     mses = []
     ssims = []
 
+    # Loop over samples
     for (data, target, file) in loop:
         data = data.to(device)
         target = target.to(device)

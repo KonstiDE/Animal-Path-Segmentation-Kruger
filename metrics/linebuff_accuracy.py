@@ -6,6 +6,7 @@ import torch.nn.functional as f
 import time
 
 
+# Helper method for LBA
 def secondary_buffer_torch(mask_gt, kernel, thickness) -> torch.Tensor:
     out = f.conv2d(mask_gt, kernel, stride=1, padding=thickness // 2)
     out[out > 1] = 1
@@ -13,6 +14,7 @@ def secondary_buffer_torch(mask_gt, kernel, thickness) -> torch.Tensor:
     return out
 
 
+# Line-buffer accuracy
 def linebuff_accuracy(pred, target, device="cuda:0", thickness=9):
     kernel = torch.ones((1, 1, thickness, thickness), dtype=torch.float).to(device)
     accs = []
@@ -49,6 +51,7 @@ def linebuff_accuracy(pred, target, device="cuda:0", thickness=9):
     return torch.mean(torch.stack(accs)).item()
 
 
+# Test LBA accuracy
 if __name__ == '__main__':
     data, mask = torch.Tensor(
         np.stack([np.zeros((512, 512)), np.zeros((512, 512)), np.zeros((512, 512)), np.zeros((512, 512))])

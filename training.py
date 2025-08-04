@@ -13,7 +13,7 @@ import config.config as cfg
 from utils.stopper import PatienceStopper
 
 from provider.dataset_provider import get_loader
-from model.unet.unet_model import AsppUNET
+from model.unet.unet_model import UNET
 
 from metrics.linebuff_accuracy import linebuff_accuracy
 
@@ -86,7 +86,8 @@ def valid(loader, loss_fn, model):
 def run(ray_config):
     torch.cuda.empty_cache()
 
-    model = AsppUNET(in_channels=3, out_channels=1, aspp=False).to(device)
+    # Setup
+    model = UNET(in_channels=3, out_channels=1, aspp=False).to(device)
     optimizer = optim.Adam(model.parameters(), lr=ray_config["lr"])
     loss_fn = nn.BCEWithLogitsLoss()
     scaler = torch.cuda.amp.GradScaler()
@@ -95,12 +96,15 @@ def run(ray_config):
 
     model.to(device)
 
+    # Get training data
     train_loader = get_loader(cfg.get_train_path(ray_config["apseg_version"]),
                               ray_config["batch_size"], cfg.num_workers(), cfg.pin_memory())
 
+    # Get validation data
     valid_loader = get_loader(cfg.get_validation_path(ray_config["apseg_version"]),
                               ray_config["batch_size"], cfg.num_workers(), cfg.pin_memory())
 
+    # Loop over all samples (epochs can be infinitly high, because early-stopping anyway steps in after some time)
     for epoch in range(epochs_done + 1, 101):
         training_loss, training_lbf = train(train_loader, loss_fn, optimizer, scaler, model)
         validation_loss, validation_lbf = valid(valid_loader, loss_fn, model)

@@ -10,15 +10,14 @@ from model.unet.unet_aspp import (
 )
 
 
-class AsppUNET(nn.Module):
-    def __init__(self, in_channels=1, out_channels=1, features=None, aspp=False):
-        super(AsppUNET, self).__init__()
+# Simple UNET architecture
+class UNET(nn.Module):
+    def __init__(self, in_channels=1, out_channels=1, features=None):
+        super(UNET, self).__init__()
 
         # Definition of features / level of depth of unet
         if features is None:
             features = [in_channels, 64, 128, 256, 512]
-
-        self.aspp = aspp
 
         # Module lists for encoder, decoder double_convs and decoder transposed_convs
         self.down_convs = nn.ModuleList()
@@ -33,11 +32,8 @@ class AsppUNET(nn.Module):
         for i in range(len(features) - 2):
             self.down_convs.append(DoubleConv(features[i], features[i + 1]))
 
-        # Double conv bottleneck with the last features plus the ASPP module
+        # Double conv bottleneck with the last features
         self.bottleneck_conv = DoubleConv(in_channels=features[-2], out_channels=features[-1])
-
-        if aspp:
-            self.bottleneck_aspp = ASPP(in_channels=features[-1], out_channels=features[-1], atrous_rates=[1, 2, 4, 8])
 
         # We revert the features list as we into the decoder
         features = features[::-1]
@@ -78,8 +74,9 @@ class AsppUNET(nn.Module):
         return self.final(x)
 
 
+# Test UNET architecture
 def test():
-    unet = AsppUNET(in_channels=3, out_channels=1).cuda()
+    unet = UNET(in_channels=3, out_channels=1).cuda()
 
     x = torch.randn(1, 3, 1024, 1024).cuda()
 

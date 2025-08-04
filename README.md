@@ -1,0 +1,3 @@
+## Automized segmentation of animal paths in high‐resolution Unoccupied Aerial System Imagery using a Convolutional Neural Network and Semi‐automatic Labeling and Polygonization ‐ a case study from the Kruger National Park
+
+This is the repository of the Neural Network results presented in the manuscript titled above. All files are commented. All hyper-parameters can be access within the `config/config.py` file.

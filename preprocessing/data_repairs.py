@@ -3,12 +3,14 @@ import numpy as np
 from tqdm import tqdm
 from scipy import interpolate
 
-
+# Sometimes, no-data-values can occur and can be interpolated with this script. This was NOT the case for our study
+# but is a process carried around in all of our repositories.
 def fix_missing_vals_(data_frames):
     for df in tqdm(data_frames):
         interpolate_nan_bands_(df.data_stack)
 
 
+# Actual interpolation process
 def interpolate_nan_bands_(array):
     for band_index in range(array.shape[2]):
         b = np.isnan(array[:, :, band_index])

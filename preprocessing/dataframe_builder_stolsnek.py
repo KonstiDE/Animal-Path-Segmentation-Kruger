@@ -22,6 +22,8 @@ rsf = importr("sf")
 rtr = importr("terra")
 
 
+# This script looks for the data of rgb.tif, dsm.tif, etc. within a certain directory and overlays them with the help
+# of R in python.
 def walk(parts):
     for part in parts:
         for gt_version in cfg.get_stolsnek_features().items():
@@ -46,12 +48,22 @@ def walk(parts):
                 vec_paths=vec_paths,
                 rast_paths=rast_paths
             )
+
+            # Slice big image into 512x512 tiles
             frames = slice_n_dice(big_stack, big_overlay, cfg.blob_size(), part)
+
+            # Check for only 0-consistent frames
             frames = check_integrity(frames)
+
+            # Eventually fix missing values
             # fix_missing_vals_(frames)
+
+            # Export to a compressed format
             export_to_npz(frames=frames, name="stolsnek", version=gt_version[0])
 
 
+# Overlay the ground truth, which is only saved as the paths in GIS (.gpkg file) with the large RGB-imagery
+# The path ground truth is either statically buffered or was estimated with checkRtrack. It is then rasterized here.
 def overlay(tif_path, vec_paths, rast_paths):
     tif = rtr.rast(tif_path)
 

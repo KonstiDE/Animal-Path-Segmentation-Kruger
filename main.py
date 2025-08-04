@@ -7,9 +7,10 @@ from utils.distributor import move_into_split
 
 
 if __name__ == '__main__':
+    # Build data
     walk_stolsnek(["part1", "part8"])
-    # walk_koger(["airstrip", "newclifford", "riverside10", "riverside56"])
 
+    # Put data into training, validation, and test split
     move_into_split()
 
     # view_dataframe()

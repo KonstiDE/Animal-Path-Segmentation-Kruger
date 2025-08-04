@@ -9,6 +9,7 @@ from rasterio.windows import Window
 import config.config as cfg
 
 
+# Export function to save a dataframe helper object to an .npz compressed format
 def export_to_npz(frames, name, version):
     for df in frames:
         data = df.data_stack

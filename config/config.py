@@ -3,6 +3,7 @@ import os.path
 import numpy as np
 from ray import tune
 
+# Configuration of hyper-parameters
 config = {
     "base_path": "C:/Users/s371513/PycharmProjects/apseg/",
     "raw_data_path_stolsnek": "E:/paper",

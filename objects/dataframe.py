@@ -10,6 +10,8 @@ from matplotlib.colors import ListedColormap
 shutup.please()
 
 
+# Dataframe is a helper object to store and load frames. A frame consists of the RGB stack, the DSM raster and the
+# ground truth overlay. The parameters of `self.classification` was only for testing purposes
 class DataFrame:
     def __init__(self, index_w, index_h, data_stack, overlay, src_part, classification):
         self.index_w = index_w

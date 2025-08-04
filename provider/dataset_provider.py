@@ -14,6 +14,7 @@ from torchvision.transforms import v2
 random.seed(251199)
 
 
+# The .npz frames that we saved after overlay are loaded here and being prepared for pytorch. (converted to tensors)
 class NrwDataSet(Dataset):
     def __init__(self, data_dir, load_amount):
 
@@ -27,11 +28,13 @@ class NrwDataSet(Dataset):
         for frame_file in frame_files:
             frame = np.load(os.path.join(data_dir, frame_file), allow_pickle=True)
 
+            # Get all channels
             red = frame["red"]
             green = frame["green"]
             blue = frame["blue"]
             dsm = frame["dom"]
 
+            # Stack input data and get the ground truth that was previously rasterized within the overlay-function
             data = np.stack((red, green, blue, dsm))
             mask = frame["gt"]
 
@@ -45,6 +48,7 @@ class NrwDataSet(Dataset):
 
             c += 1
 
+            # Small check for tests if a tinier dataset should be loaded
             if load_amount > 0:
                 if c == load_amount:
                     break
@@ -53,6 +57,8 @@ class NrwDataSet(Dataset):
         return len(self.dataset)
 
 
+    # Get single items by name. Useful for testing by viewing a dataframe with the view_dataframe method in the
+    # utils directory
     def __getitem_by_name__(self, name_id):
         frame = np.load(os.path.join(self.data_dir, "df_" + name_id + ".npz"), allow_pickle=True)
 
@@ -66,6 +72,7 @@ class NrwDataSet(Dataset):
 
         return torch.Tensor(data), mask
 
+    # Troch's default gget_item method
     def __getitem__(self, index):
         data_tuple = self.dataset[index]
 
@@ -76,6 +83,7 @@ class NrwDataSet(Dataset):
         return data, mask, frame_file
 
 
+# Create dataset of train, val or test
 def get_loader(npz_dir, batch_size, num_workers=2, pin_memory=True, shuffle=True, load_amount=0):
     train_ds = NrwDataSet(npz_dir, load_amount)
     train_loader = DataLoader(
